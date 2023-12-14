@@ -1,0 +1,61 @@
+[tool.poetry]
+name = "tinygen"
+version = "0.1.0"
+description = "Basic LSTM examples"
+authors = ["Riccardo Zanella <riccardo.zanella@gmail.com>"]
+license = "GPL-2.0-only"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "3.10.4"
+tensorflow = "2.12"
+pandas = "^2.1.4"
+
+[tool.poetry.group.dev.dependencies]
+black = "^23.12.0"
+isort = "^5.13.2"
+mypy = "^1.7.1"
+flake8 = "^6.1.0"
+coverage = {extras = ["toml"], version = "^7.3.2"}
+pytest = "^7.4.3"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+addopts = "-v"
+pythonpath = [
+    "./"
+]
+testpaths = [
+    "tests"
+]
+
+[tool.isort]
+profile = "black"
+
+[tool.black]
+line-length = 88
+target-version = ['py310']
+
+[tool.mypy]
+warn_return_any = true
+warn_unused_configs = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+
+disallow_untyped_defs = true
+disallow_untyped_calls = true
+check_untyped_defs = true
+no_implicit_optional = true
+strict_optional = true
+
+[[tool.mypy.overrides]]
+module = "tensorflow"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "pandas"
+ignore_missing_imports = true
