@@ -1,13 +1,14 @@
 # ROADMAP
 
 ## Features
-- feature: text completion
+- features:
+    - text classification
+    - text generation (completion)
 - code management
-    - testing
-    - linting
+    - :white_check_mark: testing
+    - :white_check_mark: linting
 - package
-  - using poetry
-  - python package
+  - :white_check_mark: using poetry
   - docker image
 - training
     - bare metal
@@ -18,10 +19,7 @@
     - inference API service
         - FastAPI
 - dataset management
-    - CSV to TFRecords
+    - :white_check_mark: CSV to TFRecords
 
 ## Next steps
-- how to package using poetry
-- how to manage devel/user virtual environment
-- create base scaffolding
-- ideate/build mini dataset
+- class_to_index mapping as json string input   

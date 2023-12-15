@@ -38,6 +38,10 @@ def do_pipeline(label_to_index: Dict, records: Iterable) -> List[str]:
     ] = lambda entry: entry.SerializeToString()
 
     # apply pipline
+    # filter out records with no label or with label not in label_to_index
+    allowed_labels = set(label_to_index.keys())
+    records = filter(lambda entry: entry["label"] in allowed_labels, records)
+
     formatted_entries = map(formatter, records)
 
     examples = map(create_example, formatted_entries)

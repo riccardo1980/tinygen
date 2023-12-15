@@ -8,41 +8,47 @@ import pandas as pd
 import tensorflow as tf
 
 from tinygen.io.tfrecords import do_pipeline
-from tinygen.io.utils import extract_labels
-
-# Parameters
 
 
-class Parameters(object):
+class parameters(object):
     input_file: str
     output_path: str
+    class_mapping: Dict
 
-    def __init__(self, configs: Dict) -> None:
+    def __init__(self, params: Dict) -> None:
+        # manage reformatting
+        configs = {
+            "input_file": params.pop("input_file"),
+            "output_path": params.pop("output_path"),
+            "class_mapping": json.loads(params.pop("class_mapping")),
+        }
+
+        # set attributes
         self.__dict__.update(configs)
 
     def __repr__(self) -> str:
         return str(self.__dict__)
 
 
-def run(pars: Parameters) -> None:
+def preprocess_parameters(args: Dict) -> parameters:
+    pars = parameters(args)
+    return pars
+
+
+def run(pars: parameters) -> None:
     """
     Run preprocess
 
     :param pars: parameters
     :type pars: Parameters
     """
+
     # read file
     df = pd.DataFrame(pd.read_csv(pars.input_file))
     logging.info(f"Read {len(df)} rows")
 
-    # get integer to class mapping
-    label_to_index = extract_labels(df["label"])
-    logging.info(f"Found {len(label_to_index)} labels")
-
-    # write mapping file
-    os.makedirs(pars.output_path, exist_ok=True)
-    with open(os.path.join(pars.output_path, "label_to_index.json"), "w") as f:
-        json.dump(label_to_index, f)
+    # read class mapping
+    label_to_index = pars.class_mapping
 
     # formatting / serialization pipeline
     records = df.to_dict(orient="records")
@@ -56,29 +62,23 @@ def run(pars: Parameters) -> None:
         logging.info(f"Wrote {len(o)} records")
 
 
-def build_parser() -> argparse.ArgumentParser:
+def build_parser(subparsers: argparse._SubParsersAction) -> None:
     """
     Build argument parser
 
     :return: parser
     :rtype: argparse.ArgumentParser
     """
-    parser = argparse.ArgumentParser(description="Preprocess data")
-    parser.add_argument("--input_file", type=str, required=True, help="Input file")
-    parser.add_argument("--output_path", type=str, required=True, help="Output path")
 
-    return parser
+    p = subparsers.add_parser("preprocess", help="Preprocess data")
 
-
-if __name__ == "__main__":
-    logging.basicConfig(
-        format="%(asctime)s | %(levelname)s | %(message)s", level=logging.INFO
+    p.add_argument("--input_file", type=str, required=True, help="Input file")
+    p.add_argument(
+        "--class_mapping",
+        type=str,
+        required=True,
+        help="""
+    Class mapping as JSON string: example: '{\"class1\": 0, \"class2\": 1}\',
+    """,
     )
-
-    parser = build_parser()
-    args = parser.parse_args()
-
-    pars = Parameters(vars(args))
-    logging.info(pars)
-
-    run(pars)
+    p.add_argument("--output_path", type=str, required=True, help="Output path")

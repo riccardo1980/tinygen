@@ -3,6 +3,7 @@ from typing import Dict
 import pandas as pd
 
 
+@DeprecationWarning
 def extract_labels(series: pd.Series) -> Dict[str, int]:
     """
     Extract labels from dataframe
