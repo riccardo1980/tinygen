@@ -39,8 +39,8 @@ def run(pars: parameters) -> None:
     """
     Run preprocess
 
-    :param pars: parameters
-    :type pars: Parameters
+    :param subparsers: subparsers
+    :type subparsers: argparse._SubParsersAction
     """
 
     # read file

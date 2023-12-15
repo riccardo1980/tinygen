@@ -2,13 +2,18 @@ import argparse
 import logging
 from typing import Callable, Dict
 
-from tinygen import preprocess
+from tinygen import preprocess, train
 
 modules: Dict[str, Dict[str, Callable]] = {
     "preprocess": {
         "runner": preprocess.run,
         "parameter_processor": preprocess.preprocess_parameters,
         "build_parser": preprocess.build_parser,
+    },
+    "train": {
+        "runner": train.run,
+        "parameter_processor": train.preprocess_parameters,
+        "build_parser": train.build_parser,
     }
 }
 
