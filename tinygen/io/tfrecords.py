@@ -1,6 +1,11 @@
+import logging
+from collections import Counter
+from itertools import tee
 from typing import Any, Callable, Dict, Iterable, List
 
 import tensorflow as tf
+
+# helper functions
 
 
 def bytes_feature(value: str) -> tf.train.Feature:
@@ -37,15 +42,20 @@ def do_pipeline(label_to_index: Dict, records: Iterable) -> List[str]:
         [tf.train.Example], str
     ] = lambda entry: entry.SerializeToString()
 
-    # apply pipline
     # filter out records with no label or with label not in label_to_index
     allowed_labels = set(label_to_index.keys())
     records = filter(lambda entry: entry["label"] in allowed_labels, records)
 
-    formatted_entries = map(formatter, records)
+    # prepare two iterators: one for counting, the other for writing
+    to_be_counted, to_be_written = tee(records, 2)
 
+    # count items per class
+    counter = Counter(map(lambda entry: entry["label"], to_be_counted))
+    logging.info(f"Items per class: {dict(counter)}")
+
+    # write
+    formatted_entries = map(formatter, to_be_written)
     examples = map(create_example, formatted_entries)
-
     serialized_entries = map(serializer, examples)
 
     return list(serialized_entries)

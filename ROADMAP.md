@@ -22,4 +22,8 @@
     - :white_check_mark: CSV to TFRecords
 
 ## Next steps
-- class_to_index mapping as json string input   
+- use gcs_to_fuse to path folders   
+- scaffold train section
+- preprocess:
+    - create task driven preprocessors
+    - split stats, filter, write
