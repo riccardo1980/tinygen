@@ -12,7 +12,7 @@ modules: Dict[str, Dict[str, Callable]] = {
     },
     "train": {
         "runner": train.run,
-        "parameter_processor": train.preprocess_parameters,
+        "parameter_processor": train.get_parameters,
         "build_parser": train.build_parser,
     },
 }
