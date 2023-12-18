@@ -47,12 +47,9 @@ def run(pars: parameters) -> None:
     df = pd.DataFrame(pd.read_csv(pars.input_file))
     logging.info(f"Read {len(df)} rows")
 
-    # read class mapping
-    label_to_index = pars.class_mapping
-
     # formatting / serialization pipeline
     records = df.to_dict(orient="records")
-    serialized_entries = do_pipeline(label_to_index, records)
+    serialized_entries = do_pipeline(pars.class_mapping, records)
 
     # write tfrecords
     tfrecords_path = os.path.join(pars.output_path, "tfrecords")

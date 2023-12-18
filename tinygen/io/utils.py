@@ -1,20 +1,27 @@
-from typing import Dict
-
-import pandas as pd
+from urllib import parse
 
 
-@DeprecationWarning
-def extract_labels(series: pd.Series) -> Dict[str, int]:
+def convert_to_fuse(input_path: str) -> str:
     """
-    Extract labels from dataframe
+    Path converter
 
-    :param df: dataframe
-    :type df: pd.DataFrame
-    :return: labels
-        {"ham": 0, "spam": 1}
-    :rtype: Dict[int, str]
+    :param input_path:
+        can be a GCS url
+    :return:
+        converted url
+
+    Use this util to map buckets to local paths
+    Buckets are mounted as subfolders of /gcs/
+    See: https://cloud.google.com/vertex-ai/docs/training/cloud-storage-file-system
+
+    Example: file gs://my_bucket/aa/bb is accessed through /gcs/my_bucket/aa/bb
+
     """
+    parsed = parse.urlparse(input_path)
 
-    labels = sorted(series.unique())
-    label_to_index = {lbl: idx for idx, lbl in enumerate(labels)}
-    return label_to_index
+    if parsed.scheme == "gs":
+        converted = "/gcs/" + parsed.netloc + parsed.path
+    else:
+        converted = input_path
+
+    return converted

@@ -14,11 +14,11 @@ modules: Dict[str, Dict[str, Callable]] = {
         "runner": train.run,
         "parameter_processor": train.preprocess_parameters,
         "build_parser": train.build_parser,
-    }
+    },
 }
 
 
-def build_parser() -> argparse.ArgumentParser:
+def build_subparsers() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="tinygen")
 
     subparsers = parser.add_subparsers(required=True, dest="command")
@@ -36,7 +36,7 @@ if __name__ == "__main__":
         level=logging.INFO,
     )
 
-    parser = build_parser()
+    parser = build_subparsers()
     args = parser.parse_args()
 
     logging.info(f"subcommand: {args.command}")
