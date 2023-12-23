@@ -88,7 +88,7 @@ def test_roundtrip(
 
     # tensor to numpy
     tensor_to_numpy: Callable[
-        [tuple[tf.Tensor, tf.Tensor]], tuple[int, bytes]
+        [tuple[tf.Tensor, tf.Tensor]], tuple[bytes, int]
     ] = lambda x: (
         x[0].numpy(),
         x[1].numpy(),
@@ -98,13 +98,13 @@ def test_roundtrip(
     # change labels to string from int
     # change text to string from bytes
     index_to_label: Dict[int, str] = {v: k for k, v in label_to_index.items()}
-    deformatter: Callable[[tuple[int, bytes]], tuple[str, str]] = lambda x: (
-        index_to_label[x[0]],
-        x[1].decode("utf-8"),
+    deformatter: Callable[[tuple[bytes, int]], tuple[str, str]] = lambda x: (
+        x[0].decode("utf-8"),
+        index_to_label[x[1]],
     )
 
     decoded = map(deformatter, numpys)
 
-    expected = map(lambda x: (x["label"], x["text"]), records)
+    expected = map(lambda x: (x["text"], x["label"]), records)
 
     assert list(decoded) == list(expected)

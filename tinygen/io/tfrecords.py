@@ -68,6 +68,6 @@ def read_tfrecord(example: tf.train.Example) -> tuple[tf.Tensor, ...]:
     }
 
     example = tf.io.parse_single_example(example, tfrecord_format)
-    label = example["label"]
     text = example["text"]
-    return (label, text)
+    label = example["label"]
+    return (text, label)

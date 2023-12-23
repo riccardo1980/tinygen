@@ -3,7 +3,7 @@ import os
 import tensorflow as tf
 
 from tinygen.io.tfrecords import read_tfrecord
-from tinygen.train import parameters
+from tinygen.train_pars import parameters
 
 
 def get_dataset(
@@ -18,7 +18,7 @@ def get_dataset(
     """
 
     dataset = tf.data.TFRecordDataset(
-        tf.data.Dataset.list_files(os.path.join(path, "*.tfrecord"))
+        tf.data.Dataset.list_files(os.path.join(path, "*.tfrecords"))
     )
     dataset = dataset.map(
         read_tfrecord, num_parallel_calls=tf.data.experimental.AUTOTUNE
@@ -26,7 +26,7 @@ def get_dataset(
 
     if one_hot_labels:
         dataset = dataset.map(
-            lambda label, text: (tf.one_hot(label, pars.num_classes), text),
+            lambda text, label: (text, tf.one_hot(label, pars.num_classes)),
             num_parallel_calls=tf.data.experimental.AUTOTUNE,
         )
 
@@ -35,4 +35,4 @@ def get_dataset(
 
     dataset = dataset.batch(pars.batch_size)
     dataset = dataset.prefetch(tf.data.experimental.AUTOTUNE)
-    return
+    return dataset

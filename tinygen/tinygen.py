@@ -2,7 +2,7 @@ import argparse
 import logging
 from typing import Callable, Dict
 
-from tinygen import preprocess, train
+from tinygen import preprocess, train, train_pars
 
 modules: Dict[str, Dict[str, Callable]] = {
     "preprocess": {
@@ -12,7 +12,7 @@ modules: Dict[str, Dict[str, Callable]] = {
     },
     "train": {
         "runner": train.run,
-        "parameter_processor": train.get_parameters,
+        "parameter_processor": train_pars.get_parameters,
         "build_parser": train.build_parser,
     },
 }

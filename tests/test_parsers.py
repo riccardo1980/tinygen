@@ -2,7 +2,7 @@ from typing import Any, Dict, List
 
 import pytest
 
-from tinygen import preprocess, train
+from tinygen import preprocess, train_pars
 from tinygen.tinygen import build_subparsers
 
 
@@ -26,30 +26,6 @@ from tinygen.tinygen import build_subparsers
                 "logs_path": "/path/to/output_dir/logs",
                 "checkpoints_path": "/path/to/output_dir/checkpoints",
                 "num_classes": 3,
-                "eval_dataset_path": None,
-                "shuffle_buffer_size": 0,
-                "batch_size": 32,
-                "epochs": 10,
-            },
-        ),
-        (
-            [
-                "train",
-                "--train_dataset_path",
-                "/path/to/train_dataset.csv",
-                "--output_path",
-                "/path/to/output_dir",
-                "--num_classes",
-                "3",
-            ],
-            {
-                "command": "train",
-                "train_dataset_path": "/path/to/train_dataset.csv",
-                "model_path": "/path/to/output_dir/model",
-                "logs_path": "/path/to/output_dir/logs",
-                "checkpoints_path": "/path/to/output_dir/checkpoints",
-                "num_classes": 3,
-                "eval_dataset_path": None,
             },
         ),
         (
@@ -60,7 +36,21 @@ from tinygen.tinygen import build_subparsers
                 "--output_path",
                 "/path/to/output_dir",
                 "--num_classes",
-                "3",
+                "5",
+                "--shuffle_buffer_size",
+                "8",
+                "--batch_size",
+                "27",
+                "--epochs",
+                "13",
+                "--eval_dataset_path",
+                "gs://my-bucket/path/to/eval_dataset.csv",
+                "--embedding_dim",
+                "129",
+                "--learning_rate",
+                "0.1",
+                "--dropout",
+                "0.3",
             ],
             {
                 "command": "train",
@@ -68,11 +58,14 @@ from tinygen.tinygen import build_subparsers
                 "model_path": "/path/to/output_dir/model",
                 "logs_path": "/path/to/output_dir/logs",
                 "checkpoints_path": "/path/to/output_dir/checkpoints",
-                "num_classes": 3,
-                "eval_dataset_path": None,
-                "shuffle_buffer_size": 0,
-                "batch_size": 32,
-                "epochs": 10,
+                "num_classes": 5,
+                "eval_dataset_path": "/gcs/my-bucket/path/to/eval_dataset.csv",
+                "shuffle_buffer_size": 8,
+                "batch_size": 27,
+                "epochs": 13,
+                "embedding_dim": 129,
+                "learning_rate": 0.1,
+                "dropout": 0.3,
             },
         ),
     ],
@@ -81,7 +74,7 @@ def test_train_parser_arguments(input: List[str], expected: Dict[str, Any]) -> N
     parser = build_subparsers()
     args = parser.parse_args(input)
     assert args.command == expected["command"]
-    pars = train.get_parameters(vars(args))
+    pars = train_pars.get_parameters(vars(args))
     # mandatory
     assert pars.train_dataset_path == expected["train_dataset_path"]
     assert pars.model_path == expected["model_path"]
@@ -93,6 +86,9 @@ def test_train_parser_arguments(input: List[str], expected: Dict[str, Any]) -> N
     assert pars.shuffle_buffer_size == expected.get("shuffle_buffer_size", 0)
     assert pars.batch_size == expected.get("batch_size", 32)
     assert pars.epochs == expected.get("epochs", 10)
+    assert pars.embedding_dim == expected.get("embedding_dim", 128)
+    assert pars.learning_rate == expected.get("learning_rate", 0.001)
+    assert pars.dropout == expected.get("dropout", 0.2)
 
 
 @pytest.mark.parametrize(
@@ -113,7 +109,7 @@ def test_train_parser_arguments_raise_exception(input: List[str]) -> None:
     parser = build_subparsers()
     args = parser.parse_args(input)
     with pytest.raises(AssertionError, match="[^ ]* is not set"):
-        train.get_parameters(vars(args))
+        train_pars.get_parameters(vars(args))
 
 
 @pytest.mark.parametrize(
