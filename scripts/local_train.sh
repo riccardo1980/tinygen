@@ -6,8 +6,8 @@ SRCS="tinygen"
 
 [ -d "$SRCS" ] || (echo "Run this script from project root"; exit 1)
 
-TRAIN_DATASET="data/SMSSpamCollection/train/tfrecords"
-EVAL_DATASET="data/SMSSpamCollection/train/tfrecords"
+TRAIN_DATASET="data/SMSSpamCollection_tiny/train/tfrecords"
+EVAL_DATASET="data/SMSSpamCollection_tiny/train/tfrecords"
 NUM_CLASSES=2
 OUTPUT_PATH="models/01"
 BATCH_SIZE=2

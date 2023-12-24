@@ -4,7 +4,7 @@ import logging
 import tensorflow as tf
 
 from tinygen.io.dataset import get_dataset
-from tinygen.models.base_model import Base
+from tinygen.models.base_model import BaseClassifier
 from tinygen.train_pars import parameters
 
 
@@ -30,7 +30,7 @@ def run(pars: parameters) -> None:
         eval_dataset = None  # noqa: F841
 
     # build model
-    model = Base(pars)
+    model = BaseClassifier(pars)
     model.adapt(train_dataset)
     logging.debug(model.vectorizer.get_vocabulary())
     logging.info(f"vocabulary size: {len(model.vectorizer.get_vocabulary())}")

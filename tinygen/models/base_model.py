@@ -1,11 +1,12 @@
-from typing import Callable
+from typing import Any, Callable, Dict, List, Optional, Union  # noqa: F401
 
 import tensorflow as tf
 
+from tinygen.metrics import PerClassPrecision, PerClassRecall
 from tinygen.train_pars import parameters
 
 
-class Base(tf.keras.models.Model):
+class BaseClassifier(tf.keras.models.Model):
     embedding_dim: int
     num_classes: int
     dropout_rate: float
@@ -32,7 +33,7 @@ class Base(tf.keras.models.Model):
     def __build_backbone() -> tf.keras.Model:
         backbone = tf.keras.Sequential(name="backbone")
         backbone.add(tf.keras.layers.Bidirectional(tf.keras.layers.LSTM(64)))
-        backbone.add(tf.keras.layers.Dense(64, activation="relu"))
+        # backbone.add(tf.keras.layers.Dense(5, activation="relu"))
         return backbone
 
     @staticmethod
@@ -47,8 +48,19 @@ class Base(tf.keras.models.Model):
         regularizer.add(tf.keras.layers.Dropout(rate=dropout_rate))
         return regularizer
 
+    @staticmethod
+    def __build_metrics(num_classes: int) -> List[tf.keras.metrics.Metric]:
+        metrics = [tf.keras.metrics.CategoricalAccuracy()]
+
+        for id in range(num_classes):
+            metrics.append(PerClassPrecision(class_id=id, name=f"precision_{id}_p"))
+            metrics.append(
+                PerClassRecall(class_id=id, name=f"recall_{id}_p"),
+            )
+        return metrics
+
     def __init__(self, pars: parameters):
-        super(Base, self).__init__()
+        super(BaseClassifier, self).__init__()
         self.embedding_dim = pars.embedding_dim
         self.num_classes = pars.num_classes
         self.dropout_rate = pars.dropout
@@ -77,5 +89,35 @@ class Base(tf.keras.models.Model):
         embeddings = self.embedder(inputs, training=training)
         features = self.backbone(embeddings, training=training)
         alive_features = self.regularizer(features, training=training)
-        logits = self.head(alive_features, training=training)
-        return logits
+        scores = self.head(alive_features, training=training)
+        return scores
+
+    def compile(
+        self,
+        optimizer: Union[str, tf.keras.optimizers.Optimizer] = "rmsprop",
+        loss: Union[str, tf.keras.losses.Loss] = None,
+        metrics: Optional[List[tf.keras.metrics.Metric]] = None,
+        loss_weights: Optional[Union[List, Dict]] = None,
+        weighted_metrics: Optional[List[tf.keras.metrics.Metric]] = None,
+        run_eagerly: Optional[bool] = None,
+        steps_per_execution: Optional[int] = None,
+        jit_compile: Optional[bool] = None,
+        **kwargs: Dict[str, Any],
+    ) -> None:
+        if loss is None:
+            loss = "categorical_crossentropy"
+
+        if metrics is None:
+            metrics = self.__build_metrics(self.num_classes)
+
+        super(BaseClassifier, self).compile(
+            optimizer=optimizer,
+            loss=loss,
+            metrics=metrics,
+            loss_weights=loss_weights,
+            weighted_metrics=weighted_metrics,
+            run_eagerly=run_eagerly,
+            steps_per_execution=steps_per_execution,
+            jit_compile=jit_compile,
+            **kwargs,
+        )
