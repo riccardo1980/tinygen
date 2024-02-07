@@ -4,6 +4,7 @@ import pytest
 import tensorflow as tf
 
 from tinygen.io.tfrecords import do_pipeline, make_formatter, read_tfrecord
+from tinygen.preprocess import make_class_filter
 
 
 @pytest.mark.parametrize(
@@ -65,7 +66,7 @@ def test_formatter(
 
 
 @pytest.mark.parametrize(
-    "records,label_to_index",
+    "records,class_mapping",
     [
         (
             [
@@ -78,10 +79,10 @@ def test_formatter(
     ],
 )
 def test_roundtrip(
-    records: List[Dict[str, str]], label_to_index: Dict[str, int]
+    records: List[Dict[str, str]], class_mapping: Dict[str, int]
 ) -> None:
     # entries to encoded tfrecords
-    encoded = do_pipeline(label_to_index, records)
+    encoded = do_pipeline(class_mapping, records)
 
     # decode to examples
     decoded = map(read_tfrecord, encoded)
@@ -97,7 +98,7 @@ def test_roundtrip(
 
     # change labels to string from int
     # change text to string from bytes
-    index_to_label: Dict[int, str] = {v: k for k, v in label_to_index.items()}
+    index_to_label: Dict[int, str] = {v: k for k, v in class_mapping.items()}
     deformatter: Callable[[tuple[bytes, int]], tuple[str, str]] = lambda x: (
         x[0].decode("utf-8"),
         index_to_label[x[1]],
@@ -108,3 +109,43 @@ def test_roundtrip(
     expected = map(lambda x: (x["text"], x["label"]), records)
 
     assert list(decoded) == list(expected)
+
+
+@pytest.mark.parametrize(
+    "allowed_classes,input_records,expected_records",
+    [
+        (
+            ["a", "b"],
+            [
+                {"label": "a", "text": "aaa aaaa"},
+                {"label": "b", "text": "bbb bbb"},
+                {"label": "c", "text": "ccc ccc"},
+            ],
+            [
+                {"label": "a", "text": "aaa aaaa"},
+                {"label": "b", "text": "bbb bbb"},
+            ],
+        ),
+        (
+            ["d", "e"],
+            [
+                {"label": "a", "text": "aaa aaaa"},
+                {"label": "b", "text": "bbb bbb"},
+                {"label": "c", "text": "ccc ccc"},
+            ],
+            [],
+        ),
+    ],
+)
+def test_class_filter(
+    allowed_classes: List[str],
+    input_records: List[Dict],
+    expected_records: List[Dict],
+) -> None:
+    """
+    Test for the application of class filter
+    """
+    filter = make_class_filter(allowed_classes)
+    got = list(filter(input_records))
+
+    assert expected_records == got

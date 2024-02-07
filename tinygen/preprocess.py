@@ -2,12 +2,29 @@ import argparse
 import json
 import logging
 import os
-from typing import Dict
+from collections import Counter
+from itertools import tee
+from typing import Callable, Dict, Iterable, List
 
 import pandas as pd
 import tensorflow as tf
 
 from tinygen.io.tfrecords import do_pipeline
+
+
+# FIXME: this is the application of the filter
+# maybe call filter the lambda, then call built-in filter function directly here
+def make_class_filter(allowed_classes: List) -> Callable:
+    """ """
+    allowed_labels = set(allowed_classes)
+
+    def _filter(records: Iterable) -> Iterable:
+        """
+        Filter out examples not pertaining to one of allowed classes
+        """
+        return filter(lambda entry: entry["label"] in allowed_labels, records)
+
+    return _filter
 
 
 class parameters(object):
@@ -47,11 +64,25 @@ def run(pars: parameters) -> None:
     df = pd.DataFrame(pd.read_csv(pars.input_file))
     logging.info(f"Read {len(df)} rows")
 
-    # formatting / serialization pipeline
+    # read
     records = df.to_dict(orient="records")
-    serialized_entries = do_pipeline(pars.class_mapping, records)
 
-    # write tfrecords
+    # filter
+    record_filter = make_class_filter(list(pars.class_mapping.keys()))
+
+    filtered = record_filter(records)
+
+    # create two output branches
+    to_be_counted, to_be_written = tee(filtered, 2)
+
+    # stats
+    counter = Counter(map(lambda entry: entry["label"], to_be_counted))
+    logging.info(f"Items per class: {dict(counter)}")
+
+    # write
+    serialized_entries = do_pipeline(pars.class_mapping, to_be_written)
+
+    # write - actual write
     tfrecords_path = os.path.join(pars.output_path, "tfrecords")
     os.makedirs(tfrecords_path, exist_ok=True)
     with tf.io.TFRecordWriter(os.path.join(tfrecords_path, "data.tfrecords")) as writer:

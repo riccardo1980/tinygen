@@ -63,7 +63,7 @@ def test_classification(data: List[Tuple[str, int]]) -> None:
             "num_classes": num_classes,
             "shuffle_buffer_size": 2 * len(data),
             "batch_size": len(data),
-            "epochs": 20,
+            "epochs": 30,
             "embedding_dim": 16,
             "learning_rate": 0.005,
             "dropout": 0.0,
