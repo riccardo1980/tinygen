@@ -27,7 +27,7 @@ def make_class_filter(allowed_classes: List) -> Callable:
     return _filter
 
 
-class parameters(object):
+class Parameters(object):
     input_file: str
     output_path: str
     class_mapping: Dict
@@ -47,19 +47,18 @@ class parameters(object):
         return str(self.__dict__)
 
 
-def preprocess_parameters(args: Dict) -> parameters:
-    pars = parameters(args)
+def preprocess_parameters(args: Dict) -> Parameters:
+    pars = Parameters(args)
     return pars
 
 
-def run(pars: parameters) -> None:
+def run(pars: Parameters) -> None:
     """
     Run preprocess
 
     :param subparsers: subparsers
     :type subparsers: argparse._SubParsersAction
     """
-
     # read file
     df = pd.DataFrame(pd.read_csv(pars.input_file))
     logging.info(f"Read {len(df)} rows")
@@ -69,7 +68,6 @@ def run(pars: parameters) -> None:
 
     # filter
     record_filter = make_class_filter(list(pars.class_mapping.keys()))
-
     filtered = record_filter(records)
 
     # create two output branches
@@ -79,7 +77,7 @@ def run(pars: parameters) -> None:
     counter = Counter(map(lambda entry: entry["label"], to_be_counted))
     logging.info(f"Items per class: {dict(counter)}")
 
-    # write
+    # formatting, tf.examples, serialization
     serialized_entries = do_pipeline(pars.class_mapping, to_be_written)
 
     # write - actual write
@@ -97,7 +95,6 @@ def build_parser(subparsers: argparse._SubParsersAction) -> None:
     :return: parser
     :rtype: argparse.ArgumentParser
     """
-
     p = subparsers.add_parser("preprocess", help="Preprocess data")
 
     p.add_argument("--input_file", type=str, required=True, help="Input file")

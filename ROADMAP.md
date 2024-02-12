@@ -21,27 +21,55 @@
 - dataset management
     - :white_check_mark: CSV to TFRecords
 
-## Next steps
-- use gcs_to_fuse to path folders   
-- scaffold train section
-- preprocess:
-    - create task driven preprocessors
-    - rewrite
-        - tfrecords.do_pipeline:
-            - rewrite using preprocess.run code
-            - rewrite tests/io/test_tfrecords.py::test_roundtrip
-- test coverage:
-    - create tests for all pipline steps called in preprocess.run
+## Backlog
+Use semantic classification: `<status>[module][class]<[branch]>`.  
+### Classes
+- TEST: add/rewrite tests
+- DOC: improve documentation
+- BUGFIX: fix a bug, potential bug
+- FEATURE: add a feature
+- CLEANCODE: improve code clarity
 
+### Statuses
+  - no status means not in development
+  - :construction: `:construction:` add branch name 
+  - :white_check_mark: `:white_check_mark:` means done and merged in devel 
+  - no line means merged in master
 
-______
-steps in preprocess.run
-- read file
-- filter for allowed classes
-    - filter applies the filter: instead use filter for lambda and call the built-in filter functiion outside
+Use [conventionalcommits](https://www.conventionalcommits.org/en/v1.0.0/)
+
+### High priority
+#### :white_check_mark: [TRAIN][FEATURE] uniform disk access in remote and local training
+
+#### [TRAIN][FEATURE] remote GCP train
+- Vertex Ai Custom training
+#### [TRAIN][FEATURE] create train image
+
+### Medium Priority
+#### [ALL][CLEANCODE] define subset of conventional commit, update README.md accordingly
+
+#### [PREPROCESS][FEATURE] allow for task driven preprocessors
+
+#### [PREPROCESS][TEST] rewrite tests/io/test_tfrecords.py::test_roundtrip
+
+#### [PREPROCESS][CLEANCODE] filter applies the filter: instead use filter for lambda and call the built-in filter function outside
+
+#### [PREPROCESS][TEST] enhance coverage by defining tests for all pipline steps called in preprocess.run
+- file read from CSV to iterable of records
+- filter
 - branches
-    - stats
-    - write
-        - formatter: make_formatter
-        - serializer: lambda
-        - actual write: 
+  - stats
+  - write
+    - do_pipeline: formatting, tf.examples, serialization
+    - write to tfrecords
+
+## Low Priority
+##### [PREPROCESS][BUGFIX] prevent unusable definition of label_to_index
+  - check for indices fro m 0 to number_of_classes
+  - where? used in:
+    - make_formatter
+    - others (?)
+
+#####  [ALL][BUGFIX] Enforce typechecking by defining NamedTuple derived classes
+
+#####  [PREPROCESS][BUGFIX] make_formatter: add input checks (pinned by a FIXME)

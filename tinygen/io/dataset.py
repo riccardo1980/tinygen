@@ -3,11 +3,11 @@ import os
 import tensorflow as tf
 
 from tinygen.io.tfrecords import read_tfrecord
-from tinygen.train_pars import parameters
+from tinygen.train_pars import Parameters
 
 
 def get_dataset(
-    path: str, pars: parameters, one_hot_labels: bool = True
+    path: str, pars: Parameters, one_hot_labels: bool = True
 ) -> tf.data.Dataset:
     """
     Read TFRecords and return a dataset.

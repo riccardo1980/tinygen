@@ -18,6 +18,8 @@ mypy = "^1.7.1"
 flake8 = "^6.1.0"
 coverage = {extras = ["toml"], version = "^7.3.2"}
 pytest = "^7.4.3"
+pep8-naming = "^0.13.3"
+flake8-docstrings = "^1.7.0"
 
 [build-system]
 requires = ["poetry-core"]

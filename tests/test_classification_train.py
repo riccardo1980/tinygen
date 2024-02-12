@@ -4,7 +4,7 @@ import pytest
 import tensorflow as tf
 
 from tinygen.models.base_model import BaseClassifier
-from tinygen.train_pars import parameters
+from tinygen.train_pars import Parameters
 
 data_2_classes = [
     ("a a a a", 0),
@@ -55,7 +55,7 @@ def test_classification(data: List[Tuple[str, int]]) -> None:
     num_classes = max(map(lambda d: d[1], data)) + 1
 
     # build parameters
-    pars = parameters(
+    pars = Parameters(
         {
             "train_dataset_path": "aa",
             "eval_dataset_path": "bb",
@@ -70,7 +70,7 @@ def test_classification(data: List[Tuple[str, int]]) -> None:
         }
     )
 
-    X, y = zip(*data)
+    X, y = zip(*data)  # noqa: N806
     train_dataset = tf.data.Dataset.from_tensor_slices((list(X), list(y)))
     train_dataset = train_dataset.map(lambda x, y: (x, tf.one_hot(y, pars.num_classes)))
     train_dataset = train_dataset.shuffle(pars.shuffle_buffer_size)

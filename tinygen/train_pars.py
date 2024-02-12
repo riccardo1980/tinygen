@@ -4,7 +4,7 @@ from typing import Dict
 from tinygen.io.utils import convert_to_fuse
 
 
-class parameters(object):
+class Parameters(object):
     train_dataset_path: str
     eval_dataset_path: str
     num_classes: int
@@ -60,6 +60,6 @@ class parameters(object):
         return str(self.__dict__)
 
 
-def get_parameters(args: Dict) -> parameters:
-    pars = parameters(args)
+def get_parameters(args: Dict) -> Parameters:
+    pars = Parameters(args)
     return pars

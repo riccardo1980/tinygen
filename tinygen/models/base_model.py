@@ -3,7 +3,7 @@ from typing import Any, Callable, Dict, List, Optional, Union  # noqa: F401
 import tensorflow as tf
 
 from tinygen.metrics import PerClassPrecision, PerClassRecall
-from tinygen.train_pars import parameters
+from tinygen.train_pars import Parameters
 
 
 class BaseClassifier(tf.keras.models.Model):
@@ -59,7 +59,7 @@ class BaseClassifier(tf.keras.models.Model):
             )
         return metrics
 
-    def __init__(self, pars: parameters):
+    def __init__(self, pars: Parameters):
         super(BaseClassifier, self).__init__()
         self.embedding_dim = pars.embedding_dim
         self.num_classes = pars.num_classes

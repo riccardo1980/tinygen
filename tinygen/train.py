@@ -5,17 +5,16 @@ import tensorflow as tf
 
 from tinygen.io.dataset import get_dataset
 from tinygen.models.base_model import BaseClassifier
-from tinygen.train_pars import parameters
+from tinygen.train_pars import Parameters
 
 
-def run(pars: parameters) -> None:
+def run(pars: Parameters) -> None:
     """
     Run preprocess
 
     :param pars: parameters
     :type pars: Parameters
     """
-
     # read train dataset
     train_dataset = get_dataset(
         pars.train_dataset_path, pars=pars, one_hot_labels=True
@@ -74,7 +73,6 @@ def build_parser(subparsers: argparse._SubParsersAction) -> None:
     :param subparsers: subparsers
     :type subparsers: argparse._SubParsersAction
     """
-
     p = subparsers.add_parser("train", help="Train")
 
     p.add_argument("--train_dataset_path", type=str, required=True)

@@ -2,9 +2,8 @@ from typing import Any, Callable, Dict, Iterable, List
 
 import tensorflow as tf
 
+
 # helper functions
-
-
 def bytes_feature(value: str) -> tf.train.Feature:
     """Returns a bytes_list from a string / byte."""
     return tf.train.Feature(bytes_list=tf.train.BytesList(value=[value.encode()]))
@@ -24,8 +23,39 @@ def create_example(entry: Dict[str, Any]) -> tf.train.Example:
 
 
 def make_formatter(label_to_index: Dict[str, int]) -> Callable:
+    """
+    Build a basic formatter
+
+    :param label_to_index: string to integer mapping
+
+    :return: basic formatter
+    :rtype: Callable
+    """
+
     def _formatter(entry: Dict) -> Dict[str, Any]:
+        """
+        Basic formatter for NLP multiclass classification
+
+        Throws an exception in the following cases:
+            - an example not containing both "label" and "text" keys
+            - example label value not in label_to_index (const at creation time)
+
+        :param entry: Dict containing a record
+            used keys:
+                - label: one of the allowed class strings
+                - text: string containing text
+
+        :return: formatted entry
+        :rtype: Dict
+            keys:
+                - label: int
+                - text: str
+        """
         formatted_entry: Dict[str, Any] = {}
+
+        # FIXME: add a check on needed keys in entry, throw exception
+        # FIXME: add a check on needed keys in label_to_index, throw exception
+
         formatted_entry["label"] = label_to_index[entry["label"]]
         formatted_entry["text"] = entry["text"]
         return formatted_entry
@@ -34,6 +64,19 @@ def make_formatter(label_to_index: Dict[str, int]) -> Callable:
 
 
 def do_pipeline(class_mapping: Dict, records: Iterable) -> List[str]:
+    """
+    Formatting, tf.examples, Serialization
+
+    Formatting: needed fields are type formatted
+    Examples: create a TF Example structure
+    Serialization: serialize to string
+
+    :param class_mapping: string to integer mapping
+    :param records: Iterable containing records to be serialized
+
+    :return: list of serialized examples
+    :rtype: List[str]
+    """
     formatter = make_formatter(class_mapping)
     serializer: Callable[
         [tf.train.Example], str
@@ -48,6 +91,9 @@ def do_pipeline(class_mapping: Dict, records: Iterable) -> List[str]:
 
 
 def read_tfrecord(example: tf.train.Example) -> tuple[tf.Tensor, ...]:
+    """
+    Parse Example to tensors
+    """
     tfrecord_format = {
         "label": tf.io.FixedLenFeature([], tf.int64),
         "text": tf.io.FixedLenFeature([], tf.string),
