@@ -40,20 +40,14 @@ Use [conventionalcommits](https://www.conventionalcommits.org/en/v1.0.0/)
 
 ### High priority
 #### :white_check_mark: [TRAIN][FEATURE] uniform disk access in remote and local training
+#### :white_check_mark: [TRAIN][FEATURE] create slim train image
+
+#### [TRAIN][FEATURE] enable logging, model export
 
 #### [TRAIN][FEATURE] remote GCP train
 - Vertex Ai Custom training
-#### :construction: [TRAIN][FEATURE] create train image
-    - :white_check_mark: base Dockerfile
-    - :white_check_mark: slimming
-        - two stages, so we forget about poetry
-        - not installing devel tools
-    - :white_check_mark: script for local build: build.sh
-    - :white_check_mark: script for local training in docker
 
 #### [TRAIN][FEATURE] check for sharded input files
-
-#### [TRAIN][FEATURE] enable logging, model export
 
 ### Medium Priority
 #### [ALL][CLEANCODE] define subset of conventional commit, update README.md accordingly
