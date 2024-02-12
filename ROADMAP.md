@@ -45,6 +45,8 @@ Use [conventionalcommits](https://www.conventionalcommits.org/en/v1.0.0/)
 - Vertex Ai Custom training
 #### [TRAIN][FEATURE] create train image
 
+#### [TRAIN][FEATURE] check for sharded input files
+
 #### [TRAIN][FEATURE] enable logging, model export
 
 ### Medium Priority
