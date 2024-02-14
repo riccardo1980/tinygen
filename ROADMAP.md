@@ -43,6 +43,12 @@ Use [conventionalcommits](https://www.conventionalcommits.org/en/v1.0.0/)
 #### :white_check_mark: [TRAIN][FEATURE] create slim train image
 
 #### [TRAIN][FEATURE] enable logging, model export
+    - :white_check_mark: logging, checkpointing
+    - :construction: save model
+    - load model
+    - add inference command
+    - questions:
+        - do I need do implement from_config()? [doc](https://keras.io/guides/serialization_and_saving/#model-serialization)
 
 #### [TRAIN][FEATURE] remote GCP train
 - Vertex Ai Custom training

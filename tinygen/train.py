@@ -1,8 +1,10 @@
 import argparse
 import logging
+from typing import Tuple
 
 import tensorflow as tf
 
+from tinygen.callbacks import callbacks_build
 from tinygen.io.dataset import get_dataset
 from tinygen.models.base_model import BaseClassifier
 from tinygen.train_pars import Parameters
@@ -16,54 +18,74 @@ def run(pars: Parameters) -> None:
     :type pars: Parameters
     """
     # read train dataset
-    train_dataset = get_dataset(
-        pars.train_dataset_path, pars=pars, one_hot_labels=True
-    )  # noqa: F841
+    train_dataset = get_dataset(pars.train_dataset_path, pars=pars, one_hot_labels=True)
 
     # read eval dataset
     if pars.eval_dataset_path:
         eval_dataset = get_dataset(
             pars.eval_dataset_path, pars=pars, one_hot_labels=True
-        )  # noqa: F841
+        )
     else:
-        eval_dataset = None  # noqa: F841
+        eval_dataset = None
 
-    # build model
-    model = BaseClassifier(pars)
-    model.adapt(train_dataset)
-    logging.debug(model.vectorizer.get_vocabulary())
-    logging.info(f"vocabulary size: {len(model.vectorizer.get_vocabulary())}")
+    # see: https://keras.io/examples/nlp/text_classification_from_scratch
 
-    metrics = [tf.keras.metrics.CategoricalAccuracy()]
+    # vectorization layer
+    vectorize_layer = tf.keras.layers.TextVectorization(
+        output_mode="int", standardize=None
+    )
+    vectorize_layer.adapt(train_dataset.unbatch().map(lambda text, lbl: text))
+    logging.info(f"vocabulary size: {len(vectorize_layer.get_vocabulary())}")
 
-    for id in range(pars.num_classes):
-        metrics.append(
-            tf.keras.metrics.Precision(name=f"precision_{id}_p", class_id=id),
-        )
-        metrics.append(
-            tf.keras.metrics.Recall(name=f"recall_{id}_p", class_id=id),
-        )
+    # vectorize the datasets
+    def vectorize_text(
+        text: tf.Tensor, label: tf.Tensor
+    ) -> Tuple[tf.Tensor, tf.Tensor]:
+        text = tf.expand_dims(text, -1)
+        return vectorize_layer(text), label
 
-    # compile
-    model.compile(
-        loss="categorical_crossentropy",
-        optimizer=tf.keras.optimizers.Adam(learning_rate=pars.learning_rate),
-        metrics=metrics,
+    train_dataset = train_dataset.map(vectorize_text)
+    train_dataset = train_dataset.cache().prefetch(tf.data.experimental.AUTOTUNE)
+
+    if eval_dataset is not None:
+        eval_dataset = eval_dataset.map(vectorize_text)
+        eval_dataset = eval_dataset.cache().prefetch(tf.data.experimental.AUTOTUNE)
+
+    # # build LSTM classification model
+    model = BaseClassifier(
+        input_dim=len(vectorize_layer.get_vocabulary()),
+        embedding_dim=pars.embedding_dim,
+        num_classes=pars.num_classes,
+        dropout=pars.dropout,
     )
 
-    # callbacks
-    # FIXME: add callbacks
+    # # compile
+    model.compile(
+        optimizer=tf.keras.optimizers.Adam(learning_rate=pars.learning_rate),
+    )
 
     # fit
     model.fit(
-        train_dataset, validation_data=eval_dataset, verbose=2, epochs=pars.epochs
+        train_dataset,
+        validation_data=eval_dataset,
+        verbose=2,
+        epochs=pars.epochs,
+        callbacks=callbacks_build(pars),
     )
 
     model.summary()
 
-    # save
+    # build end-to-end model
+    inputs = tf.keras.Input(shape=(1,), dtype="string")
+    # Turn strings into vocab indices
+    indices = vectorize_layer(inputs)
+    # Turn vocab indices into predictions
+    outputs = model(indices)
 
-    pass
+    end_to_end_model = tf.keras.Model(inputs, outputs)
+
+    # export model
+    end_to_end_model.export(pars.model_path)
 
 
 def build_parser(subparsers: argparse._SubParsersAction) -> None:

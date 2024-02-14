@@ -76,9 +76,29 @@ def test_classification(data: List[Tuple[str, int]]) -> None:
     train_dataset = train_dataset.shuffle(pars.shuffle_buffer_size)
     train_dataset = train_dataset.batch(pars.batch_size)
 
+    # vectorization layer
+    vectorize_layer = tf.keras.layers.TextVectorization(
+        output_mode="int", standardize=None
+    )
+    vectorize_layer.adapt(train_dataset.unbatch().map(lambda text, lbl: text))
+
+    # vectorize the dataset
+    def vectorize_text(
+        text: tf.Tensor, label: tf.Tensor
+    ) -> Tuple[tf.Tensor, tf.Tensor]:
+        text = tf.expand_dims(text, -1)
+        return vectorize_layer(text), label
+
+    train_dataset = train_dataset.map(vectorize_text)
+    train_dataset = train_dataset.cache().prefetch(tf.data.experimental.AUTOTUNE)
+
     # build model
-    model = BaseClassifier(pars)
-    model.adapt(train_dataset)
+    model = BaseClassifier(
+        input_dim=len(vectorize_layer.get_vocabulary()),
+        embedding_dim=pars.embedding_dim,
+        num_classes=pars.num_classes,
+        dropout=pars.dropout,
+    )
 
     # compile
     model.compile(

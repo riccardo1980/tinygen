@@ -14,6 +14,7 @@ BATCH_SIZE=2
 EPOCHS=10
 DROPOUT=0.9
 
+export TF_CPP_MIN_LOG_LEVEL=2
 python -m tinygen.tinygen train \
     --train_dataset_path ${TRAIN_DATASET} \
     --eval_dataset_path ${EVAL_DATASET} \
