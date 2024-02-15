@@ -1,12 +1,14 @@
 import argparse
 import logging
+import os
 from typing import Tuple
 
 import tensorflow as tf
 
 from tinygen.callbacks import callbacks_build
 from tinygen.io.dataset import get_dataset
-from tinygen.models.base_model import BaseClassifier
+from tinygen.models.base_model import base_classifier_build
+from tinygen.metrics import classification_metrics_build
 from tinygen.train_pars import Parameters
 
 
@@ -18,12 +20,22 @@ def run(pars: Parameters) -> None:
     :type pars: Parameters
     """
     # read train dataset
-    train_dataset = get_dataset(pars.train_dataset_path, pars=pars, one_hot_labels=True)
+    train_dataset = get_dataset(
+        pars.train_dataset_path,
+        num_classes=pars.num_classes,
+        shuffle_buffer_size=pars.shuffle_buffer_size,
+        batch_size=pars.batch_size,
+        one_hot_labels=True,
+    )
 
     # read eval dataset
     if pars.eval_dataset_path:
         eval_dataset = get_dataset(
-            pars.eval_dataset_path, pars=pars, one_hot_labels=True
+            pars.eval_dataset_path,
+            num_classes=pars.num_classes,
+            shuffle_buffer_size=pars.shuffle_buffer_size,
+            batch_size=pars.batch_size,
+            one_hot_labels=True,
         )
     else:
         eval_dataset = None
@@ -52,7 +64,7 @@ def run(pars: Parameters) -> None:
         eval_dataset = eval_dataset.cache().prefetch(tf.data.experimental.AUTOTUNE)
 
     # # build LSTM classification model
-    model = BaseClassifier(
+    model = base_classifier_build(
         input_dim=len(vectorize_layer.get_vocabulary()),
         embedding_dim=pars.embedding_dim,
         num_classes=pars.num_classes,
@@ -62,6 +74,8 @@ def run(pars: Parameters) -> None:
     # # compile
     model.compile(
         optimizer=tf.keras.optimizers.Adam(learning_rate=pars.learning_rate),
+        loss="categorical_crossentropy",
+        metrics=classification_metrics_build(pars.num_classes),
     )
 
     # fit
@@ -83,9 +97,9 @@ def run(pars: Parameters) -> None:
     outputs = model(indices)
 
     end_to_end_model = tf.keras.Model(inputs, outputs)
-
-    # export model
-    end_to_end_model.export(pars.model_path)
+    
+    # save model
+    end_to_end_model.save(pars.model_path, save_format="tf")
 
 
 def build_parser(subparsers: argparse._SubParsersAction) -> None:

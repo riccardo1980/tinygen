@@ -5,7 +5,29 @@ import tensorflow as tf
 from tinygen.metrics import PerClassPrecision, PerClassRecall
 
 
-class BaseClassifier(tf.keras.models.Model):
+def base_classifier_build(
+    input_dim: int,
+    embedding_dim: int,
+    num_classes: int,
+    dropout: float,
+    name: str = "base_model",
+) -> tf.keras.Model:
+    model = tf.keras.Sequential(
+        name=name,
+        layers=[
+            tf.keras.layers.Input(shape=(None,)),
+            tf.keras.layers.Embedding(
+                input_dim=input_dim, output_dim=embedding_dim, mask_zero=True
+            ),
+            tf.keras.layers.Bidirectional(tf.keras.layers.LSTM(64)),
+            tf.keras.layers.Dropout(rate=dropout),
+            tf.keras.layers.Dense(num_classes, activation="softmax"),
+        ],
+    )
+    return model
+
+
+class BaseClassifier(tf.keras.Model):
     embedding_dim: int
     num_classes: int
     dropout_rate: float

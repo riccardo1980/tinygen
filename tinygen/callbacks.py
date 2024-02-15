@@ -14,7 +14,7 @@ def callbacks_build(configs: Parameters) -> List[tf.keras.callbacks.Callback]:
         - model checkpoint
     """
     model_checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(
-        filepath=os.path.join(configs.checkpoints_path, "saved_model.pb"),
+        filepath=os.path.join(configs.checkpoints_path, "saved_model-{epoch:02d}"),
         save_weights_only=False,
         save_best_only=False,
         save_freq="epoch",

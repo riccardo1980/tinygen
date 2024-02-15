@@ -1,6 +1,16 @@
-from typing import Dict
+from typing import Dict, List
 
 import tensorflow as tf
+
+
+def classification_metrics_build(num_classes: int) -> List[tf.keras.metrics.Metric]:
+    metrics = [tf.keras.metrics.CategoricalAccuracy()]
+    for id in range(num_classes):
+        metrics.append(PerClassPrecision(class_id=id, name=f"precision_{id}_p"))
+        metrics.append(
+            PerClassRecall(class_id=id, name=f"recall_{id}_p"),
+        )
+    return metrics
 
 
 class PerClassPrecision(tf.keras.metrics.Metric):
