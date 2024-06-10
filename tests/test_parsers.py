@@ -74,7 +74,7 @@ def test_train_parser_arguments(input: List[str], expected: Dict[str, Any]) -> N
     parser = build_subparsers()
     args = parser.parse_args(input)
     assert args.command == expected["command"]
-    pars = train_pars.get_parameters(vars(args))
+    pars = train_pars.build_parameters(vars(args))
     # mandatory
     assert pars.train_dataset_path == expected["train_dataset_path"]
     assert pars.model_path == expected["model_path"]
@@ -109,7 +109,7 @@ def test_train_parser_arguments_raise_exception(input: List[str]) -> None:
     parser = build_subparsers()
     args = parser.parse_args(input)
     with pytest.raises(AssertionError, match="[^ ]* is not set"):
-        train_pars.get_parameters(vars(args))
+        train_pars.build_parameters(vars(args))
 
 
 @pytest.mark.parametrize(
@@ -141,7 +141,7 @@ def test_preprocess_parser_arguments(
     args = parser.parse_args(input)
 
     assert args.command == expected["command"]
-    pars = preprocess.preprocess_parameters(vars(args))
+    pars = preprocess.get_parameters(vars(args))
 
     assert pars.output_path == expected["output_path"]
     assert pars.input_file == expected["input_file"]

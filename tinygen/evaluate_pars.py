@@ -1,7 +1,7 @@
 from typing import Dict
 
 
-class Parameters(object):
+class EvaluateParameters(object):
     model_path: str
     dataset_path: str
     num_classes: int
@@ -22,6 +22,6 @@ class Parameters(object):
         return str(self.__dict__)
 
 
-def get_parameters(args: Dict) -> Parameters:
-    pars = Parameters(args)
+def build_parameters(args: Dict) -> EvaluateParameters:
+    pars = EvaluateParameters(args)
     return pars

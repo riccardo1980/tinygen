@@ -3,10 +3,10 @@ from typing import List
 
 import tensorflow as tf
 
-from tinygen.train_pars import Parameters
+from tinygen.train_pars import TrainParameters
 
 
-def callbacks_build(configs: Parameters) -> List[tf.keras.callbacks.Callback]:
+def callbacks_build(configs: TrainParameters) -> List[tf.keras.callbacks.Callback]:
     """
     Builds basic callbacks
 

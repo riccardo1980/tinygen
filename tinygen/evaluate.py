@@ -4,11 +4,12 @@ from typing import Dict
 
 import tensorflow as tf
 
-from tinygen.evaluate_pars import Parameters
+from tinygen.evaluate_pars import EvaluateParameters
 from tinygen.io.dataset import get_dataset
 from tinygen.metrics import classification_metrics_build
 
-def run(pars: Parameters) -> None:
+
+def run(pars: EvaluateParameters) -> None:
     """
     Run evaluation
 
@@ -57,6 +58,14 @@ def build_parser(subparsers: argparse._SubParsersAction) -> None:
     p.set_defaults(func=run)
 
 
-def get_parameters(args: Dict) -> Parameters:
-    pars = Parameters(args)
+def build_parameters(args: Dict) -> EvaluateParameters:
+    """
+    Build parameters
+
+    :param args: arguments
+    :type args: Dict
+    :return: parameters
+    :rtype: Parameters
+    """
+    pars = EvaluateParameters(args)
     return pars

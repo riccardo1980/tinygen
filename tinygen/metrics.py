@@ -6,9 +6,9 @@ import tensorflow as tf
 def classification_metrics_build(num_classes: int) -> List[tf.keras.metrics.Metric]:
     metrics = [tf.keras.metrics.CategoricalAccuracy()]
     for id in range(num_classes):
-        metrics.append(PerClassPrecision(class_id=id, name=f"precision_{id}_p"))
+        metrics.append(PerClassPrecision(class_id=id, name=f"precision/class_{id}"))
         metrics.append(
-            PerClassRecall(class_id=id, name=f"recall_{id}_p"),
+            PerClassRecall(class_id=id, name=f"recall/class_{id}"),
         )
     return metrics
 

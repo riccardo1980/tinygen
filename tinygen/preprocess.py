@@ -27,7 +27,7 @@ def make_class_filter(allowed_classes: List) -> Callable:
     return _filter
 
 
-class Parameters(object):
+class PreprocessParameters(object):
     input_file: str
     output_path: str
     class_mapping: Dict
@@ -47,12 +47,20 @@ class Parameters(object):
         return str(self.__dict__)
 
 
-def preprocess_parameters(args: Dict) -> Parameters:
-    pars = Parameters(args)
+def get_parameters(args: Dict) -> PreprocessParameters:
+    """
+    Build parameters
+
+    :param args: arguments
+    :type args: Dict
+    :return: parameters
+    :rtype: PreprocessParameters
+    """
+    pars = PreprocessParameters(args)
     return pars
 
 
-def run(pars: Parameters) -> None:
+def run(pars: PreprocessParameters) -> None:
     """
     Run preprocess
 

@@ -7,12 +7,12 @@ import tensorflow as tf
 
 from tinygen.callbacks import callbacks_build
 from tinygen.io.dataset import get_dataset
-from tinygen.models.base_model import base_classifier_build
 from tinygen.metrics import classification_metrics_build
-from tinygen.train_pars import Parameters
+from tinygen.models.base_model import base_classifier_build
+from tinygen.train_pars import TrainParameters
 
 
-def run(pars: Parameters) -> None:
+def run(pars: TrainParameters) -> None:
     """
     Run preprocess
 
@@ -97,7 +97,7 @@ def run(pars: Parameters) -> None:
     outputs = model(indices)
 
     end_to_end_model = tf.keras.Model(inputs, outputs)
-    
+
     # save model
     end_to_end_model.save(pars.model_path, save_format="tf")
 

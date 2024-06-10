@@ -7,17 +7,17 @@ from tinygen import evaluate, evaluate_pars, preprocess, train, train_pars
 modules: Dict[str, Dict[str, Callable]] = {
     "preprocess": {
         "runner": preprocess.run,
-        "parameter_processor": preprocess.preprocess_parameters,
+        "parameter_processor": preprocess.get_parameters,
         "build_parser": preprocess.build_parser,
     },
     "train": {
         "runner": train.run,
-        "parameter_processor": train_pars.get_parameters,
+        "parameter_processor": train_pars.build_parameters,
         "build_parser": train.build_parser,
     },
     "evaluate": {
         "runner": evaluate.run,
-        "parameter_processor": evaluate_pars.get_parameters,
+        "parameter_processor": evaluate_pars.build_parameters,
         "build_parser": evaluate.build_parser,
     },
 }

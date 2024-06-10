@@ -4,7 +4,7 @@ import pytest
 import tensorflow as tf
 
 from tinygen.models.base_model import BaseClassifier
-from tinygen.train_pars import Parameters
+from tinygen.train_pars import TrainParameters
 
 data_2_classes = [
     ("a a a a", 0),
@@ -55,7 +55,7 @@ def test_classification(data: List[Tuple[str, int]]) -> None:
     num_classes = max(map(lambda d: d[1], data)) + 1
 
     # build parameters
-    pars = Parameters(
+    pars = TrainParameters(
         {
             "train_dataset_path": "aa",
             "eval_dataset_path": "bb",
@@ -114,5 +114,5 @@ def test_classification(data: List[Tuple[str, int]]) -> None:
 
     assert out_dict["categorical_accuracy"] == 1.0
     for ii in range(num_classes):
-        out_dict[f"precision_{ii}_p"] == 1.0
-        out_dict[f"recall_{ii}_p"] == 1.0
+        assert out_dict[f"precision_{ii}_p"] == 1.0
+        assert out_dict[f"recall_{ii}_p"] == 1.0
